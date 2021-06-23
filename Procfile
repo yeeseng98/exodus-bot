@@ -1,4 +1,4 @@
 heroku scale web=0
-bot: node index.js
+bot: node /src/index.js
 heroku scale bot=1
 

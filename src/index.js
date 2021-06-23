@@ -21,12 +21,11 @@ client.once("ready", () => {
     for (const file of commandFiles) {
         const command = require(`./commands/${file}`);
 
-        console.log("loading " + command.name);
-        // set a new item in the Collection
-        // with the key as the command name and the value as the exported module
+        console.log("loading module: " + command.name);
+        // key as the command name and the value as the exported module
         client.commands.set(command.name, command);
     }
-    console.log("Ready!");
+    console.log("All done!");
 });
 
 client.login(token);
@@ -40,19 +39,21 @@ client.on("message", (message) => {
 
     const args = [];
     // convert single quote to double if any, then split based on regex double quotes
-    message.content.replace(/'/g, '"').match(regex).forEach((element) => {
-        if (!element) return;
-        return args.push(element.replace(/"/g, ""));
-    });
-    const commandStr = args.shift().substring(1);
+    message.content
+        .replace(/'/g, '"')
+        .match(regex)
+        .forEach((element) => {
+            if (!element) return;
+            return args.push(element.replace(/"/g, ""));
+        });
+    const commandStr = args.shift().substring(1).toLowerCase();
 
-    console.log(commandStr);
     if (!client.commands.has(commandStr)) return;
 
     const command = client.commands.get(commandStr);
 
+    // check cooldown
     const { cooldowns } = client;
-
     if (!cooldowns.has(command)) {
         cooldowns.set(command, new Discord.Collection());
     }
@@ -77,22 +78,51 @@ client.on("message", (message) => {
 
     timestamps.set(message.author.id, now);
     setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+
+    console.log(command.name + ">>" + args);
+    console.log(command.name + ">>" + args.length);
+
+    // check args
+    if (
+        command.argRequired &&
+        (!args.length || args.length != command.argSize)
+    ) {
+        return message.channel.send(
+            "Requires " +
+                command.argSize +
+                " argument(s), e.g '" +
+                command.usage +
+                "'"
+        );
+    }
+
     try {
-        command.execute(message, args, db);
+        command.execute(message, args, db, client);
     } catch (error) {
         console.error(error);
-        message.reply("there was an error trying to execute that command!");
+        message.reply("error occured when running " + command.name + "!");
     }
 });
 
-function listen(message) {
-    console.log(message.content);
+client.on("messageDelete", async (message) => {
+    console.log("DEL " + message.content + "/" + message.author.username);
+    db.push(
+        "/snipe",
+        {
+            data: {
+                content: message.content,
+                avatarUrl: message.author.avatarURL(),
+                author: message.author.username,
+            }
+        },
+        false
+    );
+});
 
+function listen(message) {
     try {
-        const data = db.getData("/" + message.content);
-        console.log(data);
+        const data = db.getData("/replies/" + message.content);
         if (data) {
-            console.log("response >> " + data);
             message.channel.send(data);
         }
     } catch {}

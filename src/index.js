@@ -14,8 +14,13 @@ client.once("ready", () => {
     client.commands = new Discord.Collection();
     client.cooldowns = new Discord.Collection();
 
+    var path = "./commands";
+    if (process.env.dev != "local") {
+        path = "/commands";
+    }
+
     const commandFiles = fs
-        .readdirSync("./commands")
+        .readdirSync(path)
         .filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
@@ -142,7 +147,5 @@ function listen(message) {
 }
 
 function hasAccess(roles) {
-    return roles.some((r) => 
-        r.name === "Circle of Trust"
-    );
+    return roles.some((r) => r.name === "Circle of Trust");
 }

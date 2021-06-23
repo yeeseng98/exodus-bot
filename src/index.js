@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const dotenv = require("dotenv");
-const { prefix, token } = require("../config.json");
+const { prefix } = require("../config.json");
 const jsonDB = require("node-json-db");
 const jdbConf = require("node-json-db/dist/lib/JsonDBConfig");
 
@@ -28,7 +28,7 @@ client.once("ready", () => {
     console.log("All done!");
 });
 
-client.login(token);
+client.login(process.env.token);
 
 client.on("message", (message) => {
     if (message.author.bot) return;

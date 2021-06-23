@@ -12,32 +12,40 @@ module.exports = {
         if (!message.mentions.users.size) {
             const avatarUrl = message.author.avatarURL()
                 ? message.author.avatarURL({ size: 2048, dynamic: true })
-                : message.author.defaultAvatarURL
+                : message.author.defaultAvatarURL;
 
             embed
                 .setColor("#0099ff")
-                .setTitle(message.author.username + "#" + message.author.discriminator)
+                .setTitle(
+                    message.author.username + "#" + message.author.discriminator
+                )
                 .setImage(avatarUrl);
 
-            if (avatarUrl) {
-                return message.channel.send(embed);
-            } else {
-                return message.channel.send("No profile picture found");
+            try {
+                if (avatarUrl) {
+                    return message.channel.send(embed);
+                } else {
+                    return message.channel.send("No profile picture found");
+                }
+            } catch (e) {
+                throw e;
             }
         }
 
         const avatarList = message.mentions.users.map((user) => {
             const avatarUrl = user.avatarURL()
                 ? user.avatarURL({ size: 2048, dynamic: true })
-                : user.defaultAvatarURL
+                : user.defaultAvatarURL;
 
             return avatarUrl;
         });
 
         if (avatarList) {
-            message.channel.send(avatarList);
-        } else {
-            message.channel.send("No profile picture found");
+            try {
+                message.channel.send(avatarList);
+            } catch (e) {
+                throw e;
+            }
         }
     },
 };

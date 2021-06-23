@@ -4,6 +4,7 @@ module.exports = {
     argRequired: true,
     argSize: 1,
     usage: 'delrep "I am dumb"',
+    adminOnly: true,
     execute(message, args, dbContext) {
       try {
         dbContext.getData("/replies/" + args[0]);

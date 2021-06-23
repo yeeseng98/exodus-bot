@@ -35,7 +35,8 @@ client.on("message", (message) => {
 
     listen(message);
 
-    if (!message.content.startsWith(prefix)) return;
+    if (!message.content.startsWith(prefix) || message.channel.type === "dm")
+        return;
 
     const args = [];
     // convert single quote to double if any, then split based on regex double quotes
@@ -48,9 +49,35 @@ client.on("message", (message) => {
         });
     const commandStr = args.shift().substring(1).toLowerCase();
 
-    if (!client.commands.has(commandStr)) return;
+    if (!client.commands.has(commandStr)) {
+        message.channel.send("get ?help bro");
+        return;
+    }
 
     const command = client.commands.get(commandStr);
+
+    console.log(command.name + ">>" + args);
+
+    // check args
+    if (
+        command.argRequired &&
+        (!args.length || args.length != command.argSize)
+    ) {
+        message.channel.send(
+            "Requires " +
+                command.argSize +
+                " argument(s), e.g '" +
+                command.usage +
+                "'"
+        );
+        return;
+    }
+
+    // check role access
+    if (command.adminOnly && !hasAccess(message.member.roles.cache)) {
+        message.channel.send("Missing required role to run command!");
+        return;
+    }
 
     // check cooldown
     const { cooldowns } = client;
@@ -68,44 +95,30 @@ client.on("message", (message) => {
 
         if (now < expirationTime) {
             const timeLeft = (expirationTime - now) / 1000;
-            return message.reply(
+            message.reply(
                 `\`${command.name}\` is on cooldown for ${timeLeft.toFixed(
                     1
                 )} more second(s)`
             );
+            return;
         }
     }
 
     timestamps.set(message.author.id, now);
     setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
-    console.log(command.name + ">>" + args);
-    console.log(command.name + ">>" + args.length);
-
-    // check args
-    if (
-        command.argRequired &&
-        (!args.length || args.length != command.argSize)
-    ) {
-        return message.channel.send(
-            "Requires " +
-                command.argSize +
-                " argument(s), e.g '" +
-                command.usage +
-                "'"
-        );
-    }
-
     try {
         command.execute(message, args, db, client);
     } catch (error) {
-        console.error(error);
+        console.error(
+            "error occured when running " + command.name + "\n" + error
+        );
         message.reply("error occured when running " + command.name + "!");
     }
 });
 
 client.on("messageDelete", async (message) => {
-    console.log("DEL " + message.content + "/" + message.author.username);
+    console.log("DEL " + message.contet + "/" + message.author.username);
     db.push(
         "/snipe",
         {
@@ -113,7 +126,7 @@ client.on("messageDelete", async (message) => {
                 content: message.content,
                 avatarUrl: message.author.avatarURL(),
                 author: message.author.username,
-            }
+            },
         },
         false
     );
@@ -126,4 +139,10 @@ function listen(message) {
             message.channel.send(data);
         }
     } catch {}
+}
+
+function hasAccess(roles) {
+    return roles.some((r) => 
+        r.name === "Circle of Trust"
+    );
 }

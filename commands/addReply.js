@@ -4,6 +4,7 @@ module.exports = {
     argRequired: true,
     argSize: 2,
     usage: 'addrep "I am dumb" "True"',
+    category: 'reply',
     async execute(message, args, db) {
         try {
             const docRef = await db.collection("replies").doc(args[0]);

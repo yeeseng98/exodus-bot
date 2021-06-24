@@ -5,6 +5,7 @@ module.exports = {
     argSize: 1,
     usage: 'delrep "I am dumb"',
     roles: 'Circle of Trust',
+    category: 'reply',
     async execute(message, args, db) {
       var docRef;
 

@@ -128,6 +128,10 @@ client.on("message", async (message) => {
 
     try {
         command.execute(message, args, db, client);
+
+        if (command.category && command.category == 'reply') {
+            reloadCache();
+        }
     } catch (error) {
         console.error(
             "error occured when running " + command.name + "\n" + error
@@ -153,12 +157,6 @@ function listen(message) {
         
         if (response) {
             message.channel.send(response);
-        } else {
-            db.collection('replies').doc(message.content).get().then(doc => {
-                if (doc.data()) {
-                    message.channel.send(doc.data().rep);
-                }
-            });
         }
     } catch (e){
     }

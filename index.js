@@ -28,7 +28,7 @@ client.once("ready", async () => {
 
     var path = "./commands";
     if (process.env.dev != "local") {
-        path = "/app/src/commands";
+        path = "/app/commands";
     }
 
     const commandFiles = fs

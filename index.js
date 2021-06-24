@@ -127,7 +127,7 @@ client.on("message", async (message) => {
     setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
     try {
-        command.execute(message, args, db, client);
+        await command.execute(message, args, db, client);
 
         if (command.category && command.category == 'reply') {
             reloadCache();

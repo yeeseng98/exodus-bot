@@ -20,7 +20,7 @@ const db = admin.firestore();
 
 setInterval(() => { 
     reloadCache();
-}, 600000);
+}, 900000);
 
 client.once("ready", async () => {
     client.commands = new Discord.Collection();
@@ -168,9 +168,13 @@ function hasAccess(userRoles, requiredRole) {
 
 async function reloadCache() {
     console.log("cache is reloading...");
+    let i=0;
     cache.flushAll();
     const replies = await db.collection('replies').get();
     replies && replies.forEach((doc) => {
         cache.set(doc.id, doc.data().rep);
+        i++;
     });
+    console.log("firebase detected " + i + " items");
+    console.log("cache stored " + cache.getStats().keys + " items");
 }

@@ -1,16 +1,26 @@
 const Discord = require("discord.js");
 const fs = require("fs");
-const dotenv = require("dotenv");
-const { prefix } = require("../config.json");
-const jsonDB = require("node-json-db");
-const jdbConf = require("node-json-db/dist/lib/JsonDBConfig");
-
+const dotenv = require("dotenv").config();
+const { prefix } = require("./config.json");
+const admin = require("firebase-admin");
+const NodeCache = require( "node-cache" );
+const cache = new NodeCache();
 const regex = new RegExp('"[^"]+"|[\\S]+', "g");
 const client = new Discord.Client();
-const db = new jsonDB.JsonDB(new jdbConf.Config("jsonDB", true, false, "/"));
-dotenv.config();
 
-client.once("ready", () => {
+admin.initializeApp({
+    credential: admin.credential.cert(
+        process.env.GOOGLE_APPLICATION_CREDENTIALS
+    ),
+});
+
+const db = admin.firestore();
+
+setInterval(() => { 
+    reloadCache();
+}, 600000);
+
+client.once("ready", async () => {
     client.commands = new Discord.Collection();
     client.cooldowns = new Discord.Collection();
 
@@ -30,12 +40,14 @@ client.once("ready", () => {
         // key as the command name and the value as the exported module
         client.commands.set(command.name, command);
     }
+
+    reloadCache();
     console.log("All done!");
 });
 
 client.login(process.env.token);
 
-client.on("message", (message) => {
+client.on("message", async (message) => {
     if (message.author.bot) return;
 
     listen(message);
@@ -79,7 +91,7 @@ client.on("message", (message) => {
     }
 
     // check role access
-    if (command.adminOnly && !hasAccess(message.member.roles.cache)) {
+    if (command.roles && !hasAccess(message.member.roles.cache, command.roles)) {
         message.channel.send("Missing required role to run command!");
         return;
     }
@@ -123,29 +135,42 @@ client.on("message", (message) => {
 });
 
 client.on("messageDelete", async (message) => {
-    console.log("DEL " + message.contet + "/" + message.author.username);
-    db.push(
-        "/snipe",
-        {
-            data: {
-                content: message.content,
-                avatarUrl: message.author.avatarURL(),
-                author: message.author.username,
-            },
-        },
-        false
-    );
+    console.log("DEL " + message.content + "/" + message.author.username);
+    const docRef = db.collection("snipe").doc("snap");
+
+    await docRef.set({
+        content: message.content,
+        avatarUrl: message.author.avatarURL(),
+        author: message.author.username,
+    });
 });
 
 function listen(message) {
     try {
-        const data = db.getData("/replies/" + message.content);
-        if (data) {
-            message.channel.send(data);
+        const response = cache.get(message.content);
+        
+        if (response) {
+            message.channel.send(response);
+        } else {
+            db.collection('replies').doc(message.content).get().then(doc => {
+                if (doc.data()) {
+                    message.channel.send(doc.data().rep);
+                }
+            });
         }
-    } catch {}
+    } catch (e){
+    }
 }
 
-function hasAccess(roles) {
-    return roles.some((r) => r.name === "Circle of Trust");
+function hasAccess(userRoles, requiredRole) {
+    return userRoles.some((r) => r.name === requiredRole);
+}
+
+async function reloadCache() {
+    console.log("cache is reloading...");
+    cache.flushAll();
+    const replies = await db.collection('replies').get();
+    replies && replies.forEach((doc) => {
+        cache.set(doc.id, doc.data().rep);
+    });
 }

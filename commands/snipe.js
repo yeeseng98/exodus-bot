@@ -6,17 +6,18 @@ module.exports = {
     argRequired: false,
     argSize: 0,
     usage: "snipe",
-    execute(message, args, dbContext) {
+    async execute(message, args, db) {
         try {
-            const data = dbContext.getData("/snipe/data");
-            if (data) {
+            const doc = await db.collection('snipe').doc('snap').get();
+            if (doc.data()) {
+                const sniped = doc.data();
                 const embed = new Discord.MessageEmbed()
                     .setColor("#0099ff")
                     .setTitle("")
-                    .setAuthor(data.author,data.avatarUrl)
-                    .setDescription(data.content)
+                    .setAuthor(sniped.author,sniped.avatarUrl)
+                    .setDescription(sniped.content)
 
-                const imgLink = getURL(data.content);
+                const imgLink = getURL(sniped.content);
                 if (imgLink) {
                     embed.setImage(imgLink);
                 }
@@ -24,7 +25,7 @@ module.exports = {
             }
         } catch (error) {
             console.log(error);
-            message.channel.send("Something went wrong!");
+            throw error;
         }
     },
 };

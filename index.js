@@ -9,9 +9,11 @@ const regex = new RegExp('"[^"]+"|[\\S]+', "g");
 const client = new Discord.Client();
 
 admin.initializeApp({
-    credential: admin.credential.cert(
-        process.env.GOOGLE_APPLICATION_CREDENTIALS
-    ),
+    credential: admin.credential.cert({
+        "projectId": process.env.FIREBASE_PROJECT_ID,
+        "private_key": process.env.FIREBASE_PRIVATE_KEY,
+        "client_email": process.env.FIREBASE_CLIENT_EMAIL
+    }),
 });
 
 const db = admin.firestore();

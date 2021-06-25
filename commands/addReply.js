@@ -4,16 +4,18 @@ module.exports = {
     argRequired: true,
     argSize: 2,
     usage: 'addrep "I am dumb" "True"',
-    category: 'reply',
+    category: "reply",
     async execute(message, args, db) {
         try {
-            const docRef = await db.collection("replies").doc(args[0]);
-            await docRef.set({
-                rep: args[1],
-            });
-            return message.channel.send(
-                'Added "' + args[0] + '" to match "' + args[1] + '"!'
-            );
+            if (typeof args[0] === "string") {
+                const docRef = await db.collection("replies").doc(args[0].toLowerCase());
+                await docRef.set({
+                    rep: args[1],
+                });
+                return message.channel.send(
+                    'Added "' + args[0].toLowerCase() + '" to match "' + args[1] + '"!'
+                );
+            }
         } catch (error) {
             throw error;
         }

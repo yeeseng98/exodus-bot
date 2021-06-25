@@ -153,7 +153,7 @@ client.on("messageDelete", async (message) => {
 
 function listen(message) {
     try {
-        const response = cache.get(message.content);
+        const response = cache.get(message.content.toLowerCase());
         
         if (response) {
             message.channel.send(response);

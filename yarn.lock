@@ -1772,6 +1772,13 @@ v8-compile-cache@^2.0.3:
   resolved "https://registry.yarnpkg.com/v8-compile-cache/-/v8-compile-cache-2.3.0.tgz#2de19618c66dc247dcfb6f99338035d8245a2cee"
   integrity sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==
 
+waifulabs@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/waifulabs/-/waifulabs-0.3.2.tgz#35adf7404621155efc89b100d3bda778e145b5f9"
+  integrity sha512-iAl+skLSbz6mQDJijneb5M5WvmWgDux/2JqJHgE53osCsSkjfYCIn/wl6xnkHtRni7TEXB7jwuvYs1UELYQ/nQ==
+  dependencies:
+    node-fetch "^2.6.1"
+
 websocket-driver@>=0.5.1:
   version "0.7.4"
   resolved "https://registry.yarnpkg.com/websocket-driver/-/websocket-driver-0.7.4.tgz#89ad5295bbf64b480abcba31e4953aca706f5760"

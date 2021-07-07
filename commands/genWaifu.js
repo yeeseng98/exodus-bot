@@ -41,7 +41,7 @@ module.exports = {
 
                 let filter = (m) =>
                     m.author.id === message.author.id &&
-                    message.content.toLowerCase().startsWith("reroll");
+                    m.content.toLowerCase().startsWith("reroll");
                 message.channel.send(embed).then(() => {
                     message.channel
                         .awaitMessages(filter, {

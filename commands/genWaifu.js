@@ -43,7 +43,7 @@ module.exports = {
                 message.channel.send(embed).then(() => {
                     message.channel
                         .awaitMessages(filter, {
-                            max: 5,
+                            max: 1,
                             time: 10000,
                             errors: ["time"],
                         })
@@ -54,7 +54,7 @@ module.exports = {
                                     .toLowerCase()
                                     .startsWith("reroll")
                             ) {
-                                var rerollArg = str.replace("reroll", "");
+                                var rerollArg = message.content.toLowerCase().replace("reroll", "");
 
                                 const rerollOptions = [
                                     "color",

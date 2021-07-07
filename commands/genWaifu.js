@@ -43,29 +43,37 @@ module.exports = {
                 message.channel.send(embed).then(() => {
                     message.channel
                         .awaitMessages(filter, {
-                            max: 1,
+                            max: 5,
                             time: 10000,
                             errors: ["time"],
                         })
                         .then((message) => {
                             message = message.first();
-                            if (message.content.toLowerCase() == "rerollpls") {
+                            if (
+                                message.content
+                                    .toLowerCase()
+                                    .startsWith("reroll")
+                            ) {
+                                var rerollArg = str.replace("reroll", "");
+
                                 const rerollOptions = [
                                     "color",
                                     "details",
                                     "pose",
                                 ];
 
-                                const rerolled =
-                                    rerollOptions[getRandomInt(0, 2)];
+                                if (!rerollOptions.includes(rerollArg)) {
+                                    rerollArg =
+                                        rerollOptions[getRandomInt(0, 2)];
+                                }
                                 message.channel.send(
                                     "Weeby is looking to reroll " +
-                                        rerolled +
+                                    rerollArg +
                                         "!"
                                 );
 
                                 waifulabs
-                                    .generateWaifus(waifu, rerolled)
+                                    .generateWaifus(waifu, rerollArg)
                                     .then(async ([newWaifu, productWaifu]) => {
                                         const sfbuff2 = new Buffer.from(
                                             newWaifu.image,
@@ -90,7 +98,7 @@ module.exports = {
                                                     message.author
                                                         .discriminator +
                                                     "(" +
-                                                    rerolled +
+                                                    rerollArg +
                                                     " rerolled)"
                                             )
                                             .attachFiles(sfattach2)

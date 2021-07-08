@@ -6,8 +6,11 @@ module.exports = {
     argRequired: false,
     argSize: 0,
     usage: "snipe",
-    async execute(message, args, db) {
+    async execute(cmdCtx) {
         try {
+            var message = cmdCtx.message;
+            var db = cmdCtx.db;
+
             const doc = await db.collection('snipe').doc('snap').get();
             if (doc.data()) {
                 const sniped = doc.data();

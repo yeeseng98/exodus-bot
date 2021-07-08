@@ -6,7 +6,10 @@ module.exports = {
     argRequired: false,
     argSize: 0,
     usage: "avatar @who",
-    execute(message, args) {
+    execute(cmdCtx) {
+
+        var message = cmdCtx.message;
+
         const embed = new Discord.MessageEmbed();
 
         if (!message.mentions.users.size) {

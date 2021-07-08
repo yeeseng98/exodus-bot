@@ -5,7 +5,9 @@ module.exports = {
     argSize: 0,
 	cooldown: 10,
 	usage: 'ping',
-	execute(message, args) {
+	execute(cmdCtx) {
+		var message = cmdCtx.message;
+
 		message.channel.send('Pong.');
 	},
 };

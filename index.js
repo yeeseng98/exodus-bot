@@ -1,24 +1,25 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const dotenv = require("dotenv").config();
-const { prefix } = require("./config.json");
+const { prefix, configEmotes } = require("./config.json");
 const admin = require("firebase-admin");
-const NodeCache = require( "node-cache" );
+const NodeCache = require("node-cache");
+const CmdContext = require("./models/cmdContext");
 const cache = new NodeCache();
 const regex = new RegExp('"[^"]+"|[\\S]+', "g");
 const client = new Discord.Client();
 
 admin.initializeApp({
     credential: admin.credential.cert({
-        "projectId": process.env.FIREBASE_PROJECT_ID,
-        "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        "client_email": process.env.FIREBASE_CLIENT_EMAIL
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+        client_email: process.env.FIREBASE_CLIENT_EMAIL,
     }),
 });
 
 const db = admin.firestore();
 
-setInterval(() => { 
+setInterval(() => {
     reloadCache();
 }, 900000);
 
@@ -44,6 +45,7 @@ client.once("ready", async () => {
     }
 
     reloadCache();
+    loadEmotes();
     console.log("All done!");
 });
 
@@ -93,7 +95,10 @@ client.on("message", async (message) => {
     }
 
     // check role access
-    if (command.roles && !hasAccess(message.member.roles.cache, command.roles)) {
+    if (
+        command.roles &&
+        !hasAccess(message.member.roles.cache, command.roles)
+    ) {
         message.channel.send("Missing required role to run command!");
         return;
     }
@@ -108,7 +113,10 @@ client.on("message", async (message) => {
     const timestamps = cooldowns.get(command);
     const cooldownAmount = (command.cooldown || 3) * 1000;
 
-    if (timestamps.has(message.author.id) && message.author.id != process.env.ownerId) {
+    if (
+        timestamps.has(message.author.id) &&
+        message.author.id != process.env.ownerId
+    ) {
         const expirationTime =
             timestamps.get(message.author.id) + cooldownAmount;
 
@@ -127,9 +135,10 @@ client.on("message", async (message) => {
     setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
     try {
-        await command.execute(message, args, db, client);
+        const cmdCtx = new CmdContext(message, args, db, client, cache);
+        await command.execute(cmdCtx);
 
-        if (command.category && command.category == 'reply') {
+        if (command.category && command.category == "reply") {
             reloadCache();
         }
     } catch (error) {
@@ -154,12 +163,11 @@ client.on("messageDelete", async (message) => {
 function listen(message) {
     try {
         const response = cache.get(message.content.toLowerCase());
-        
+
         if (response) {
             message.channel.send(response);
         }
-    } catch (e){
-    }
+    } catch (e) {}
 }
 
 function hasAccess(userRoles, requiredRole) {
@@ -167,14 +175,32 @@ function hasAccess(userRoles, requiredRole) {
 }
 
 async function reloadCache() {
-    console.log("cache is reloading...");
-    let i=0;
+    console.log("cache is reloading replies..");
+    let i = 0;
     cache.flushAll();
-    const replies = await db.collection('replies').get();
-    replies && replies.forEach((doc) => {
-        cache.set(doc.id, doc.data().rep);
-        i++;
-    });
-    console.log("firebase detected " + i + " items");
+    const replies = await db.collection("replies").get();
+    replies &&
+        replies.forEach((doc) => {
+            cache.set(doc.id, doc.data().rep);
+            i++;
+        });
+    loadEmotes();
     console.log("cache stored " + cache.getStats().keys + " items");
+}
+
+async function loadEmotes() {
+    console.log("cache is loading emotes..");
+    const guild = await client.guilds.fetch(process.env.guildId);
+
+    Object.entries(configEmotes).forEach(async (entry) => {
+        try {
+            const [key, value] = entry;
+            const reactionEmoji = await guild.emojis.cache.find(
+                (emoji) => emoji.name === key
+            );
+            cache.set("loadEmotes>" + key, reactionEmoji.id);
+        } catch (e) {
+            console.log("could not find emote of " + key);
+        }
+    });
 }

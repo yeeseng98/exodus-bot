@@ -4,7 +4,9 @@ module.exports = {
 	argRequired: false,
     argSize: 0,
 	usage: 'help',
-	execute(message, args, db, clContext) {
+	execute(cmdCtx) {
+		var message = cmdCtx.message;
+
 		var resp = '__**List of Commands**__\n';
 
 		const commandStr = clContext.commands.map(command => pad(20, command.name, " ") + "|     " + command.description).join('\n');

@@ -1,4 +1,4 @@
-const paginationEmbed = require('discord.js-pagination');
+const paginationEmbed = require("discord.js-pagination");
 const Discord = require("discord.js");
 
 module.exports = {
@@ -6,36 +6,59 @@ module.exports = {
     description: "List all replies",
     argRequired: false,
     argSize: 0,
-    usage: 'listrep',
-    async execute(message, args, db) {
+    usage: "listrep",
+    async execute(cmdCtx) {
+        var message = cmdCtx.message;
+        var db = cmdCtx.db;
+
         var replies;
         try {
-            replies = await db.collection('replies').get();
+            replies = await db.collection("replies").get();
         } catch (error) {
             console.log(error);
             throw error;
         }
 
         if (replies) {
-            var repStr = '';
+            var repStr = "";
 
             const pages = [];
             let i = 1;
+            const maxPageCount =
+                replies._size % 10 == 0
+                    ? Math.floor(replies._size / 10)
+                    : Math.floor(replies._size / 10) + 1;
+            var curPage = 1;
+            replies &&
+                replies.forEach((doc) => {
+                    repStr += doc.id + "\n";
+                    i++;
 
-            replies && replies.forEach((doc) => {
-                repStr += i + ". " + doc.id + '\n';
-                i++;
-                if (i%10 == 0) {
-                    const embed =new Discord.MessageEmbed()
-                    .setColor("#0099ff")
-                    .setTitle("")
-                    .setAuthor("Weeby's List of Replies\n", "https://cdn.discordapp.com/emojis/803558160744448060.png?v=1")
-                    .setDescription(repStr);
+                    if (curPage == maxPageCount && i == replies._size + 1) {
+                        const embed = new Discord.MessageEmbed()
+                            .setColor("#0099ff")
+                            .setTitle("")
+                            .setAuthor(
+                                "Weeby's List of Replies\n",
+                                "https://cdn.discordapp.com/emojis/803558160744448060.png?v=1"
+                            )
+                            .setDescription(repStr);
+                        pages.push(embed);
+                    } else if (i % 10 == 0) {
+                        const embed = new Discord.MessageEmbed()
+                            .setColor("#0099ff")
+                            .setTitle("")
+                            .setAuthor(
+                                "Weeby's List of Replies\n",
+                                "https://cdn.discordapp.com/emojis/803558160744448060.png?v=1"
+                            )
+                            .setDescription(repStr);
 
-                    pages.push(embed);
-                    repStr = '';
-                }
-            });
+                        pages.push(embed);
+                        curPage++;
+                        repStr = "";
+                    }
+                });
 
             paginationEmbed(message, pages);
         } else {

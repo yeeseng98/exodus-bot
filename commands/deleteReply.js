@@ -6,7 +6,11 @@ module.exports = {
     usage: 'delrep "I am dumb"',
     roles: 'Circle of Trust',
     category: 'reply',
-    async execute(message, args, db) {
+    async execute(cmdCtx) {
+
+      var message = cmdCtx.message;
+      var args = cmdCtx.args;
+      var db = cmdCtx.db;
       var docRef;
 
       try {

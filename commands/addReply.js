@@ -5,7 +5,11 @@ module.exports = {
     argSize: 2,
     usage: 'addrep "I am dumb" "True"',
     category: "reply",
-    async execute(message, args, db) {
+    async execute(cmdCtx) {
+        var message = cmdCtx.message;
+        var args = cmdCtx.args;
+        var db = cmdCtx.db;
+
         try {
             if (typeof args[0] === "string") {
                 const docRef = await db.collection("replies").doc(args[0].toLowerCase());

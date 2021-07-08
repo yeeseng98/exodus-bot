@@ -1,3 +1,11 @@
 {
-	"prefix": "?"
+	"prefix": "?",
+	"configEmotes": {
+		"disabled": -5,
+		"disgustingslo": -3,
+		"dafuq": -1,
+		"cute": 1,
+		"yaranai": 3,
+		"yaragasm2": 5
+	}
 }

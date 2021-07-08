@@ -6,7 +6,7 @@ module.exports = {
     description: "List waifus",
     argRequired: false,
     argSize: 0,
-    usage: "lwaifu Guilty",
+    usage: "lwaifu",
     async execute(cmdCtx) {
         var message = cmdCtx.message;
         var db = cmdCtx.db;

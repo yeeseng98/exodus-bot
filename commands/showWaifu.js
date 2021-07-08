@@ -5,7 +5,7 @@ module.exports = {
     description: "Show waifu of specific name",
     argRequired: true,
     argSize: 1,
-    usage: "showwaifu Chiaki Nanami",
+    usage: "swaifu Chiaki Nanami",
     async execute(cmdCtx) {
         var message = cmdCtx.message;
         var db = cmdCtx.db;

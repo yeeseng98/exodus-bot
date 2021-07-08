@@ -82,7 +82,7 @@ client.on("message", async (message) => {
     // check args
     if (
         command.argRequired &&
-        (!args.length || args.length != command.argSize)
+        (!args.length || args.length < command.argSize)
     ) {
         message.channel.send(
             "Requires " +

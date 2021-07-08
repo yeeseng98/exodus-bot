@@ -6,7 +6,7 @@ module.exports = {
 	usage: 'help',
 	execute(cmdCtx) {
 		var message = cmdCtx.message;
-		var message = cmdCtx.client;
+		var client = cmdCtx.client;
 
 		var resp = '__**List of Commands**__\n';
 

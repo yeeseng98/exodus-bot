@@ -2,6 +2,7 @@ const waifulabs = require("waifulabs");
 const Discord = require("discord.js");
 const jpGen = require("japanese-name-generator");
 const { configEmotes } = require("../config.json");
+const { WaifuTag } = require("../consts/waifuTags");
 
 module.exports = {
     name: "genwaifu",
@@ -228,20 +229,21 @@ async function initEmoteCollector(
                     "!"
             );
 
-            var tag = null;
+            var tag;
 
-            if (reactMap["yaragasm2"] > 0) {
-                tag = "Weeb's Ideal";
-            } else if (reactMap["disgustingslo"] > 0) {
-                tag = "Hellspawn Incarnate";
-            }
+            // if (reactMap["yaragasm2"] > 0) {
+            //     tag = WaifuTag.Ideal;
+            // } else if (reactMap["disgustingslo"] > 1) {
+            //     tag = WaifuTag.Hellspawn;
+            // }
 
             if (tag) {
+
+                resolveTag(tag);
+
                 var db = cmdCtx.db;
 
-                const docRef = await db
-                    .collection("savedWaf")
-                    .doc(fileName);
+                const docRef = await db.collection("savedWaf").doc(fileName);
 
                 await docRef.set({
                     name: name.toLowerCase(),
@@ -271,4 +273,10 @@ async function initEmoteCollector(
 function getEmbedUrl(botMessage) {
     const embed = botMessage.embeds[0];
     return embed.image.url;
+}
+
+function resolveTag(tag) {
+    if (tag in WaifuTag && WaifuTag[tag].customResp) {
+        //do custom handling
+    }
 }

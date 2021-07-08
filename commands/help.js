@@ -6,10 +6,11 @@ module.exports = {
 	usage: 'help',
 	execute(cmdCtx) {
 		var message = cmdCtx.message;
+		var message = cmdCtx.client;
 
 		var resp = '__**List of Commands**__\n';
 
-		const commandStr = clContext.commands.map(command => pad(20, command.name, " ") + "|     " + command.description).join('\n');
+		const commandStr = client.commands.map(command => pad(20, command.name, " ") + "|     " + command.description).join('\n');
 
 		resp += commandStr;
 

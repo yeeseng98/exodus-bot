@@ -82,7 +82,7 @@ function waitResponse(
         m.author.id === uMessage.author.id &&
         m.content.toLowerCase().startsWith("reroll");
 
-    if (attempt == 1) {
+    if (attempt == 3) {
         initEmoteCollector(
             uMessage,
             randomColor,
@@ -194,7 +194,7 @@ async function initEmoteCollector(
         return reaction.emoji.name in configEmotes;
     };
 
-    const timer = 10000;
+    const timer = 20000;
     const seconds = ((timer % 60000) / 1000).toFixed(0);
     const collector_emote = botMessage.createReactionCollector(filter_emote, {
         time: timer,

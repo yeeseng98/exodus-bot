@@ -2,11 +2,17 @@ const waifulabs = require("waifulabs");
 const Discord = require("discord.js");
 const jpGen = require("japanese-name-generator");
 const { configEmotes } = require("../config.json");
-const { WaifuTag } = require("../consts/waifuTags");
+const { WaifuTag } = require("../consts/waifuTag");
+const { Emotes } = require("../consts/emotes");
+
+const rerollDuration = 15000;
+const rerollVoteTurn = 1;
+const voteDuration = 5000;
 
 module.exports = {
     name: "gwaifu",
-    description: "Generates a random weeb png, type rr[pose/details/color] to reroll",
+    description:
+        "Generates a random weeb png, type rr[pose/details/color] to reroll",
     argRequired: false,
     argSize: 0,
     usage: "gwaifu",
@@ -83,7 +89,7 @@ function waitResponse(
         m.author.id === uMessage.author.id &&
         m.content.toLowerCase().startsWith("rr");
 
-    if (attempt == 3) {
+    if (attempt == rerollVoteTurn) {
         initEmoteCollector(
             uMessage,
             randomColor,
@@ -97,7 +103,7 @@ function waitResponse(
     uMessage.channel
         .awaitMessages(filter, {
             max: 1,
-            time: 10000,
+            time: rerollDuration,
             errors: ["time"],
         })
         .then((message) => {
@@ -195,7 +201,7 @@ async function initEmoteCollector(
         return reaction.emoji.name in configEmotes;
     };
 
-    const timer = 20000;
+    const timer = voteDuration;
     const seconds = ((timer % 60000) / 1000).toFixed(0);
     const collector_emote = botMessage.createReactionCollector(filter_emote, {
         time: timer,
@@ -231,15 +237,14 @@ async function initEmoteCollector(
 
             var tag;
 
-            // if (reactMap["yaragasm2"] > 0) {
-            //     tag = WaifuTag.Ideal;
-            // } else if (reactMap["disgustingslo"] > 1) {
-            //     tag = WaifuTag.Hellspawn;
-            // }
+            if (reactMap["yaragasm2"] > 0) {
+                tag = WaifuTag.Ideal;
+            } else if (reactMap["ohgodwhy"] > 0) {
+                tag = WaifuTag.Cursed;
+            }
 
             if (tag) {
-
-                resolveTag(tag);
+                const isDeletable = resolveTag(tag, uMessage);
 
                 var db = cmdCtx.db;
 
@@ -252,18 +257,19 @@ async function initEmoteCollector(
                     username: uMessage.author.username,
                     discriminator: uMessage.author.discriminator,
                     userid: uMessage.author.id,
-                    tag: tag,
+                    tag: tag.title,
                     score: totalPoint,
+                    value: totalPoint,
+                    deletable: isDeletable,
+                    editable: true
                 });
 
                 uMessage.channel.send(
                     "**" +
                         name +
-                        "** by " +
+                        "** has been saved to " +
                         uMessage.author.username +
-                        " has been saved to the harem as **" +
-                        tag +
-                        "**!"
+                        "'s harem!"
                 );
             }
         }
@@ -275,8 +281,21 @@ function getEmbedUrl(botMessage) {
     return embed.image.url;
 }
 
-function resolveTag(tag) {
-    if (tag in WaifuTag && WaifuTag[tag].customResp) {
-        //do custom handling
+function resolveTag(tag, uMessage) {
+    if (tag.key) {
+        try {
+            switch (tag.key) {
+                case "CUR":
+                    uMessage.channel.send(
+                        "T-take responsibility " +
+                            uMessage.author.username +
+                            "-kun..."
+                    );
+                    uMessage.channel.send(Emotes.Cute);
+                    break;
+            }
+        } catch (error) {}
     }
+
+    return tag.nonDeletable ? false : true;
 }

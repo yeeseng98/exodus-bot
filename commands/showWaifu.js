@@ -18,7 +18,6 @@ module.exports = {
             queryName += " " + args[1];
         }
 
-        console.log(queryName);
         try {
             await db
                 .collection("savedWaf")

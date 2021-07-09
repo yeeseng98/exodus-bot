@@ -5,11 +5,11 @@ const { configEmotes } = require("../config.json");
 const { WaifuTag } = require("../consts/waifuTags");
 
 module.exports = {
-    name: "genwaifu",
-    description: "Generates a random weeb png",
+    name: "gwaifu",
+    description: "Generates a random weeb png, type rr [pose/details/color] to reroll",
     argRequired: false,
     argSize: 0,
-    usage: "genwaifu",
+    usage: "gwaifu",
     cooldown: 25,
     async execute(cmdCtx) {
         var message = cmdCtx.message;
@@ -81,7 +81,7 @@ function waitResponse(
 ) {
     let filter = (m) =>
         m.author.id === uMessage.author.id &&
-        m.content.toLowerCase().startsWith("reroll");
+        m.content.toLowerCase().startsWith("rr");
 
     if (attempt == 3) {
         initEmoteCollector(

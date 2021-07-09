@@ -39,17 +39,14 @@ module.exports = {
                         const embed = new Discord.MessageEmbed()
                             .setColor("#0099ff")
                             .setTitle("")
-                            .setAuthor("Weeby's List of Replies\n", avatarUrl)
+                            .setAuthor("Weeby's Replies\n", avatarUrl)
                             .setDescription(repStr);
                         pages.push(embed);
                     } else if (i % 10 == 0) {
                         const embed = new Discord.MessageEmbed()
                             .setColor("#0099ff")
                             .setTitle("")
-                            .setAuthor(
-                                "Weeby's List of Replies\n",
-                                "https://cdn.discordapp.com/emojis/803558160744448060.png?v=1"
-                            )
+                            .setAuthor("Weeby's Replies\n", avatarUrl)
                             .setDescription(repStr);
 
                         pages.push(embed);

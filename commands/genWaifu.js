@@ -6,8 +6,8 @@ const { WaifuTag } = require("../consts/waifuTag");
 const { Emotes } = require("../consts/emotes");
 
 const rerollDuration = 15000;
-const rerollVoteTurn = 1;
-const voteDuration = 5000;
+const rerollVoteTurn = 3;
+const voteDuration = 15000;
 
 module.exports = {
     name: "gwaifu",

@@ -6,7 +6,7 @@ const { WaifuTag } = require("../consts/waifuTags");
 
 module.exports = {
     name: "gwaifu",
-    description: "Generates a random weeb png, type rr [pose/details/color] to reroll",
+    description: "Generates a random weeb png, type rr[pose/details/color] to reroll",
     argRequired: false,
     argSize: 0,
     usage: "gwaifu",
@@ -106,7 +106,7 @@ function waitResponse(
 
                 var rerollArg = uMessage.content
                     .toLowerCase()
-                    .replace("reroll", "");
+                    .replace("rr", "");
 
                 const rerollOptions = ["color", "details", "pose"];
 

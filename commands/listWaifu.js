@@ -19,7 +19,6 @@ module.exports = {
             queryName += " " + args[1];
         } else {
             try {
-                var index = 0;
                 await db
                     .collection("savedWaf")
                     .where("userid", "==", message.author.id)

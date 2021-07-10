@@ -373,8 +373,7 @@ async function getWafCounter(uMessage, cmdCtx) {
 
     uref.get().then(
         (snapshot) => {
-            dbCount = snapshot.val();
-            return dbCount ? dbCount : 0;
+            return snapshot.val() ? snapshot.val() : 0;
         },
         (errorObject) => {
             console.log("The read failed: " + errorObject.name);

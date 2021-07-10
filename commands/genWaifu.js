@@ -300,7 +300,8 @@ async function saveWaifu(
     try {
         const waifuCount = getWafCounter(uMessage, cmdCtx);
 
-        if (waifuCount <= maxWaifu) {
+        console.log(uMessage.author.username + " wafCount >> " + waifuCount);
+        if (waifuCount < maxWaifu) {
             const isDeletable = resolveTag(tag, uMessage);
 
             var db = cmdCtx.db;
@@ -330,11 +331,13 @@ async function saveWaifu(
                     uMessage.author.username +
                     "'s harem!"
             );
-        } else  {
+        } else {
             uMessage.channel.send(
                 "**" +
                     name +
-                    "** cannot be saved due to maximum harem limit(" + maxWaifu +") reached!"
+                    "** cannot be saved due to maximum harem limit(" +
+                    maxWaifu +
+                    ") reached!"
             );
         }
     } catch (error) {

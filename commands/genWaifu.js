@@ -370,13 +370,16 @@ async function incrementWafCounter(uMessage, cmdCtx) {
 async function getWafCounter(uMessage, cmdCtx) {
     var rtdb = cmdCtx.rtdb;
     const uref = rtdb.ref("Counters/WafCount/" + uMessage.author.id);
+    var dbCount;
 
     uref.get().then(
         (snapshot) => {
-            return snapshot.val() ? snapshot.val() : 0;
+            dbCount = snapshot.val();
         },
         (errorObject) => {
             console.log("The read failed: " + errorObject.name);
         }
     );
+
+    return dbCount ? dbCount : 0;
 }

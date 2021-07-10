@@ -15,9 +15,11 @@ admin.initializeApp({
         private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
         client_email: process.env.FIREBASE_CLIENT_EMAIL,
     }),
+    databaseURL: process.env.FIREBASE_RTURL
 });
 
 const db = admin.firestore();
+const rtdb = admin.database();
 
 setInterval(() => {
     reloadCache();
@@ -135,7 +137,7 @@ client.on("message", async (message) => {
     setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
     try {
-        const cmdCtx = new CmdContext(message, args, db, client, cache);
+        const cmdCtx = new CmdContext(message, args, db, rtdb, client, cache);
         await command.execute(cmdCtx);
 
         if (command.category && command.category == "reply") {

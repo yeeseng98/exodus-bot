@@ -8,6 +8,7 @@ const { Emotes } = require("../consts/emotes");
 const rerollDuration = 15000;
 const rerollVoteTurn = 3;
 const voteDuration = 15000;
+const maxWaifu = 5;
 
 module.exports = {
     name: "gwaifu",
@@ -237,39 +238,24 @@ async function initEmoteCollector(
 
             var tag;
 
-            if (reactMap["yaragasm2"] > 0) {
+            if (reactMap["yaragasm2"] > 0 || reactMap["yaranai"] > 0) {
                 tag = WaifuTag.Ideal;
             } else if (reactMap["ohgodwhy"] > 0) {
                 tag = WaifuTag.Cursed;
             }
 
             if (tag) {
-                const isDeletable = resolveTag(tag, uMessage);
-
-                var db = cmdCtx.db;
-
-                const docRef = await db.collection("savedWaf").doc(fileName);
-
-                await docRef.set({
-                    name: name.toLowerCase(),
-                    color: color,
-                    url: getEmbedUrl(botMessage),
-                    username: uMessage.author.username,
-                    discriminator: uMessage.author.discriminator,
-                    userid: uMessage.author.id,
-                    tag: tag.title,
-                    score: totalPoint,
-                    value: totalPoint,
-                    deletable: isDeletable,
-                    editable: true
-                });
-
-                uMessage.channel.send(
-                    "**" +
-                        name +
-                        "** has been saved to " +
-                        uMessage.author.username +
-                        "'s harem!"
+                // save waifu if there is a valid tag
+                saveWaifu(
+                    uMessage,
+                    color,
+                    name,
+                    botMessage,
+                    fileName,
+                    cmdCtx,
+                    tag,
+                    totalPoint,
+                    totalReacts
                 );
             }
         }
@@ -298,4 +284,97 @@ function resolveTag(tag, uMessage) {
     }
 
     return tag.nonDeletable ? false : true;
+}
+
+async function saveWaifu(
+    uMessage,
+    color,
+    name,
+    botMessage,
+    fileName,
+    cmdCtx,
+    tag,
+    totalPoint,
+    totalReacts
+) {
+    try {
+        const waifuCount = getWafCounter(uMessage, cmdCtx);
+
+        if (waifuCount <= maxWaifu) {
+            const isDeletable = resolveTag(tag, uMessage);
+
+            var db = cmdCtx.db;
+
+            const docRef = await db.collection("savedWaf").doc(fileName);
+
+            await docRef.set({
+                name: name.toLowerCase(),
+                color: color,
+                url: getEmbedUrl(botMessage),
+                username: uMessage.author.username,
+                discriminator: uMessage.author.discriminator,
+                userid: uMessage.author.id,
+                tag: tag.title,
+                score: totalPoint,
+                value: totalPoint,
+                deletable: isDeletable,
+                editable: true,
+            });
+
+            incrementWafCounter(uMessage, cmdCtx);
+
+            uMessage.channel.send(
+                "**" +
+                    name +
+                    "** has been saved to " +
+                    uMessage.author.username +
+                    "'s harem!"
+            );
+        } else  {
+            uMessage.channel.send(
+                "**" +
+                    name +
+                    "** cannot be saved due to maximum harem limit(" + maxWaifu +") reached!"
+            );
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function incrementWafCounter(uMessage, cmdCtx) {
+    var rtdb = cmdCtx.rtdb;
+    const uref = rtdb.ref("Counters/WafCount/" + uMessage.author.id);
+    var dbCount;
+
+    uref.get().then(
+        (snapshot) => {
+            dbCount = snapshot.val();
+            if (dbCount) {
+                dbCount++;
+                uref.set(dbCount);
+            } else {
+                console.log("set1");
+                uref.set(1);
+            }
+        },
+        (errorObject) => {
+            console.log("The read failed: " + errorObject.name);
+        }
+    );
+}
+
+async function getWafCounter(uMessage, cmdCtx) {
+    var rtdb = cmdCtx.rtdb;
+    const uref = rtdb.ref("Counters/WafCount/" + uMessage.author.id);
+
+    uref.get().then(
+        (snapshot) => {
+            dbCount = snapshot.val();
+            return dbCount ? dbCount : 0;
+        },
+        (errorObject) => {
+            console.log("The read failed: " + errorObject.name);
+        }
+    );
 }

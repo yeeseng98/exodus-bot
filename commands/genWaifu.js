@@ -298,7 +298,7 @@ async function saveWaifu(
     totalReacts
 ) {
     try {
-        const waifuCount = getWafCounter(uMessage, cmdCtx);
+        const waifuCount = await getWafCounter(uMessage, cmdCtx);
 
         console.log(uMessage.author.username + " wafCount >> " + waifuCount);
         if (waifuCount < maxWaifu) {

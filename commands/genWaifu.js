@@ -361,7 +361,7 @@ async function incrementWafCounter(uMessage, cmdCtx) {
             }
         },
         (errorObject) => {
-            console.log("The read failed: " + errorObject.name);
+            throw "Increment Counter Failed";
         }
     );
 }
@@ -376,7 +376,7 @@ async function getWafCounter(uMessage, cmdCtx) {
             return snapshot.val();
         },
         (errorObject) => {
-            console.log("The read failed: " + errorObject.name);
+            throw "Read Counter Failed";
         }
     );
 

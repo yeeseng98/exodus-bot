@@ -41,7 +41,6 @@ client.once("ready", async () => {
     for (const file of commandFiles) {
         const command = require(`./commands/${file}`);
 
-        console.log("loading module: " + command.name);
         // key as the command name and the value as the exported module
         client.commands.set(command.name, command);
     }

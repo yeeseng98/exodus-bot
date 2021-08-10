@@ -71,6 +71,10 @@ client.on("message", async (message) => {
         });
     const commandStr = args.shift().substring(1).toLowerCase();
 
+    if (!commandStr) {
+        return;
+    }
+     
     if (!client.commands.has(commandStr)) {
         message.channel.send("get ?help bro");
         return;

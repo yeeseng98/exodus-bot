@@ -8,7 +8,7 @@ const { Emotes } = require("../consts/emotes");
 const rerollDuration = 15000;
 const rerollVoteTurn = 3;
 const voteDuration = 15000;
-const maxWaifu = 5;
+const maxWaifu = 99;
 
 module.exports = {
     name: "gwaifu",
